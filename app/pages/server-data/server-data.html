@@ -1,0 +1,46 @@
+<ion-content padding class="server-data">
+
+    <div *ngIf="info" class="server-data-panel">
+
+        <form [ngFormModel]="authForm" (ngSubmit)="onSubmit(authForm.value)">
+
+            <div class="title-server-data">
+                <span class="welcome-text"> {{ info.title }}</span> <span class="app-name"> {{ info.app }} </span>
+            </div>
+
+            <div class="description-server-data">
+                <span>{{ info.description }}</span>
+            </div>
+
+            <ion-list>
+                <ion-item>
+                    <ion-label floating>{{ info.server_url }}</ion-label>
+                    <ion-input type="url" [ngFormControl]="server_url" required ></ion-input>
+                </ion-item>
+                <div padding *ngIf="server_url.hasError('required') && server_url.touched" class="error-box">
+                    {{ info.errors.server_url_empty }}
+                </div>
+
+                <ion-item>
+                    <ion-label floating>{{ info.user }}</ion-label>
+                    <ion-input type="text" [ngFormControl]="user" required></ion-input>
+                </ion-item>
+                <div padding *ngIf="user.hasError('required') && user.touched" class="error-box">
+                    {{ info.errors.user_empty }}
+                </div>
+
+                <ion-item>
+                    <ion-label floating>{{ info.password }}</ion-label>
+                    <ion-input type="password" [ngFormControl]="password" required></ion-input>
+                </ion-item>
+                <div padding *ngIf="password.hasError('required') && password.touched" class="error-box">
+                    {{ info.errors.password_empty }}
+                </div>
+
+                <button type="submit" full [disabled]="!authForm.valid" block>{{ info.button }}</button>
+            </ion-list>
+        </form>
+
+    </div>
+
+</ion-content>

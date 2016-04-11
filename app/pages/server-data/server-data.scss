@@ -1,0 +1,27 @@
+.server-data {
+
+  .title-server-data {
+    margin-bottom: 20px;
+    .app-name{
+      color: #f2f2f2;
+      background: #4ba65f;
+      font-size: 32px;
+      font-family: 'Libre Baskerville', serif;
+      padding: 10px;
+    }
+    .welcome-text{
+      font-size: 32px;
+      font-family: 'Libre Baskerville', serif;
+    }
+  }
+
+  .description-server-data{
+    margin-bottom: 20px;
+  }
+
+  .error-box{
+    color : #a94442;
+    font-size: 13px;
+  }
+
+}
