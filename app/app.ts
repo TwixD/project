@@ -1,16 +1,20 @@
 import 'es6-shim';
-import {App,Platform} from 'ionic-angular';
+import {App,IonicApp,Platform,SqlStorage, Storage} from 'ionic-angular';
 import {StatusBar} from 'ionic-native';
-import {Bootstrap} from './core/bootstrap/bootstrap';
 import {HTTP_PROVIDERS,JSONP_PROVIDERS} from 'angular2/http';
 import {Sync} from './core/sync/sync.service';
 import {Logger} from './core/logger/logger.service';
 import {Builder} from './core/builder/builder.service';
 import {Connectivity} from './core/connectivity/connectivity';
-import {LanguageCore} from './core/language/LanguageCore';
+import {Language} from './core/language/Language';
+import {Menu} from './pages/menu/menu';
+import {TutorialPage} from './pages/tutorial/tutorial';
+import {FormBuilder} from 'angular2/common';
+import {ServerData} from './pages/server-data/server-data';
+
 
 @App({
-  template: '<ion-nav [root]="rootPage"></ion-nav>',
+  templateUrl: 'build/app.html',
   config: {}, // http://ionicframework.com/docs/v2/api/config/Config/
   providers: [
         HTTP_PROVIDERS,
@@ -19,25 +23,70 @@ import {LanguageCore} from './core/language/LanguageCore';
         Logger,
         Builder,
         Connectivity,
-        LanguageCore
+        Language,
+        FormBuilder
     ]
 })
-export class MyApp {
+export class CoreApp {
 
-  rootPage : any = Bootstrap;
-  constructor(platform: Platform,
+  root : any;
+  storage : Storage;
+
+  constructor(
+              private app: IonicApp,
+              platform: Platform,
               private _logger : Logger,
               private _builder : Builder,
               private _connectivity : Connectivity,
-              private _language: LanguageCore,
-              private _sync: Sync) {
+              private _language: Language,
+              private _sync: Sync,
+              private _fb: FormBuilder) {
 
     platform.ready().then(() => {
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
+    });
+    this.app = app;
+    this.storage = new Storage(SqlStorage);
+
+  }
+
+
+  ngAfterViewInit() {
+    let nav = this.app.getComponent('nav');
+    this._logger.log("Loading config...");
+    this.storage.query("SELECT count(*) AS EXIST FROM sqlite_master WHERE type='table' AND name='config'").then((data) => {
+
+        if (data.res.rows[0]['EXIST'] == 1){
+            //Exist table config
+            this.storage.query("SELECT * FROM config").then((config) => {
+
+            //Reconfiguring the app
+            if(config.res.rows.length === 0){
+              this._logger.log("Reconfiguring");
+              //No Exists table config, start tutorial & config
+              nav.push(ServerData);
+            }else{
+              //App Ready!
+              this._logger.log("App ready to run!");
+              nav.push(ServerData);
+
+            }
+
+           }, (error) => {
+              //Put Alert < ---
+              console.log("ERROR -> " + JSON.stringify(error.err));
+          });
+        } else if (data.res.rows[0]['EXIST'] == 0 ){
+          //No Exists table config, start tutorial & config
+          this._logger.log("Initial Config");
+          nav.push(ServerData);
+        }
+
+    },(error) => {
+        this._logger.error( JSON.stringify(error.err) );
     });
 
   }
+
 
 }
